@@ -1,0 +1,1 @@
+echo -e "\n${extra_key}" >> /home/ubuntu/.ssh/authorized_keys
