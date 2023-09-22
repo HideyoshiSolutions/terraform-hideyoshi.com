@@ -53,8 +53,8 @@ variable "ssh_public_key_ci_cd" {
 terraform {
   required_providers {
     godaddy = {
-      source = "n3integration/godaddy"
-      version = "1.9.1"
+      source = "zaneatwork/godaddy"
+      version = "1.9.10"
     }
     aws = {
       source = "hashicorp/aws"
@@ -92,15 +92,32 @@ resource "aws_s3_bucket_public_access_block" "bucket_public_disabled" {
     restrict_public_buckets = true
 }
 
+resource "aws_s3_bucket_ownership_controls" "s3_bucket_acl_ownership" {
+  bucket = aws_s3_bucket.default.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+  depends_on = [aws_s3_bucket_public_access_block.bucket_public_disabled]
+}
+
+resource "aws_s3_bucket_acl" "default" {
+    bucket = aws_s3_bucket.default.id
+    acl    = "private"
+    depends_on = [aws_s3_bucket_ownership_controls.s3_bucket_acl_ownership]
+}
+
 resource "aws_s3_bucket_policy" "default" {
     bucket = aws_s3_bucket.default.id
+    depends_on = [aws_s3_bucket_public_access_block.bucket_public_disabled]
     policy = <<POLICY
 {
     "Version": "2012-10-17",
     "Statement": [
         {
             "Effect": "Allow",
-            "Principal": "*",
+            "Principal": {
+                "AWS": "*"
+            },
             "Action": [
                 "s3:PutObject",
                 "s3:GetObject",
@@ -116,7 +133,7 @@ resource "aws_s3_bucket_policy" "default" {
         }
     ]
 }
-POLICY
+POLICY    
 }
 
 resource "aws_s3_bucket_cors_configuration" "default" {
@@ -221,8 +238,10 @@ resource "aws_instance" "worker" {
 
 # DNS
 
-resource "godaddy_domain_record" "gd-runningit" {
+resource "godaddy_domain_record" "default" {
     domain   = "hideyoshi.com.br"
+
+    overwrite = false
 
     record {
         name = "staging	"
