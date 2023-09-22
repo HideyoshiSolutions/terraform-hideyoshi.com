@@ -5,21 +5,38 @@ variable "project_name" {
     default = "hideyoshi-portifolio"
 }
 
+variable "project_domain" {
+    type = string
+}
+
+variable "k3s_token" {
+    type = string
+}
+
+variable "number_of_workers" {
+    type = number
+    default = 2
+}
+
 variable "aws_region" {
     type = string
     default = "sa-east-1"
 }
 
-variable "aws_access_key" {
+variable "aws_access" {
     type = string
 }
 
-variable "aws_secret_key" {
+variable "aws_secret" {
     type = string
 }
 
-variable "project_domain" {
+variable "godaddy_key" {
     type = string
+}
+
+variable "godaddy_secret" {
+    type = string 
 }
 
 variable "ssh_public_key_main" {
@@ -30,18 +47,31 @@ variable "ssh_public_key_ci_cd" {
     type = string
 }
 
-variable "number_of_workers" {
-    type = number
-    default = 2
+
+### PROVIDERS
+
+terraform {
+  required_providers {
+    godaddy = {
+      source = "n3integration/godaddy"
+      version = "1.9.1"
+    }
+    aws = {
+      source = "hashicorp/aws"
+      version = "5.17.0"
+    }
+  }
 }
-
-
-### PROVIDER
 
 provider "aws" {
     region = var.aws_region
-    access_key = var.aws_access_key
-    secret_key = var.aws_secret_key
+    access_key = var.aws_access
+    secret_key = var.aws_secret
+}
+
+provider "godaddy" {
+    key = var.godaddy_key
+    secret = var.godaddy_secret
 }
 
 
@@ -153,14 +183,15 @@ resource "aws_security_group" "project_pool" {
 
 resource "aws_instance" "main" {
     ami = "ami-0af6e9042ea5a4e3e"
-    instance_type = "t2.micro"
+    instance_type = "t3a.medium"
     vpc_security_group_ids = [ aws_security_group.project_pool.id ]
-    count = 1
 
     key_name = aws_key_pair.ssh_key_main.key_name
 
-    user_data   = templatefile("${path.module}/setup_key.sh", {
+    user_data   = templatefile("${path.module}/setup_main.sh", {
         extra_key = aws_key_pair.ssh_key_ci_cd.public_key
+        k3s_token = var.k3s_token
+        k3s_url = var.project_domain
     })
 
     tags = {
@@ -172,16 +203,41 @@ resource "aws_instance" "worker" {
     ami = "ami-0af6e9042ea5a4e3e"
     instance_type = "t2.micro"
     vpc_security_group_ids = [ aws_security_group.project_pool.id ]
-    count = 1
+    count = var.number_of_workers
 
     key_name = aws_key_pair.ssh_key_main.key_name
 
-    user_data   = templatefile("${path.module}/setup_key.sh", {
+    user_data   = templatefile("${path.module}/setup_worker.sh", {
         extra_key = aws_key_pair.ssh_key_ci_cd.public_key
+        k3s_token = var.k3s_token
+        k3s_url = var.project_domain
     })
 
     tags = {
         Name = "${var.project_name}-worker"
+    }
+}
+
+
+# DNS
+
+resource "godaddy_domain_record" "gd-runningit" {
+    domain   = "hideyoshi.com.br"
+
+    record {
+        name = "staging	"
+        type = "A"
+        data = "${aws_instance.main.public_ip}"
+        ttl = 600
+        priority = 0
+    }
+
+    record {
+        name = "api.staging	"
+        type = "A"
+        data = "${aws_instance.main.public_ip}"
+        ttl = 600
+        priority = 0
     }
 }
 
