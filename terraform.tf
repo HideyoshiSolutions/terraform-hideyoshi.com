@@ -231,7 +231,7 @@ resource "aws_instance" "worker" {
     })
 
     tags = {
-        Name = "${var.project_name}-worker"
+        Name = "${var.project_name}-worker-${count.index+1}"
     }
 }
 
