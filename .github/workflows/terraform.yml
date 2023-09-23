@@ -12,7 +12,7 @@ jobs:
     name: 'Terraform'
     runs-on: ubuntu-latest
     env:
-      TF_WORKSPACE: ${{github.ref == 'refs/heads/\"main\"' && 'prod' || 'staging'}}
+      TF_WORKSPACE: ${{github.ref == 'refs/heads/main' && 'prod' || 'staging'}}
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
