@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/staging'
     env:
-      TF_WORKSPACE: ${{github.ref == 'refs/heads/\"main\"' && 'prod' || 'staging'}}
+      TF_WORKSPACE: 'staging'
     
     steps:
       - name: Sleep for 1800 minutes
-        run: sleep 60s
+        run: sleep 1800s
         shell: bash
 
       # Checkout the repository to the GitHub Actions runner
