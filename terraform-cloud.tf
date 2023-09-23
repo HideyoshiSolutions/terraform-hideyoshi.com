@@ -1,9 +1,10 @@
 terraform {
-  cloud {
-    organization = "vitorhnbatista"
+    required_version = ">1.5"
+    backend "remote" {
+        organization = "HideyoshiNakazone"
 
-    workspaces {
-      name = "hideyoshi-portfolio"
+        workspaces {
+            prefix = "hideyoshi-portfolio-"
+        }
     }
-  }
 }

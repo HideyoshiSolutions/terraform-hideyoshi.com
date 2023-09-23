@@ -12,12 +12,12 @@ terraform {
 # EC2 Instances
 
 resource "aws_key_pair" "ssh_key_main" {
-    key_name = "ssh_key_main"
+    key_name = "${var.project_name}_ssh_key_main"
     public_key = var.ssh_public_key_main
 }
 
 resource "aws_key_pair" "ssh_key_ci_cd" {
-    key_name = "ssh_key_ci_cd"
+    key_name = "${var.project_name}_ssh_key_ci_cd"
     public_key = var.ssh_public_key_ci_cd
 }
 
