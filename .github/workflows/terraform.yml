@@ -3,16 +3,14 @@ name: 'Terraform'
 on:
   push:
     branches: [ "staging", "main" ]
-  pull_request:
 
 permissions:
   contents: read
 
 jobs:
   terraform:
-    name: 'Terraform - Staging'
+    name: 'Terraform'
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/staging'
     env:
       TF_WORKSPACE: ${{github.ref == 'refs/heads/\"main\"' && 'prod' || 'staging'}}
 
