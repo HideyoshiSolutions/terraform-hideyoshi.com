@@ -91,7 +91,12 @@ resource "aws_instance" "main" {
         inline = [
             "echo 'curl -sfL https://get.k3s.io | K3S_TOKEN=\"${var.k3s_token}\" sh -' >> /home/ubuntu/setup.sh",
             "chmod +x /home/ubuntu/setup.sh",
-            "exec /home/ubuntu/setup.sh | tee logs.txt"
+            "exec /home/ubuntu/setup.sh | tee logs.txt",
+            "mkdir /home/ubuntu/.kube",
+            "sudo chmod 644 /etc/rancher/k3s/k3s.yaml",
+            "cp /etc/rancher/k3s/k3s.yaml /home/ubuntu/.kube/k3s.yaml",
+            "echo 'export KUBECONFIG=/home/ubuntu/.kube/k3s.yaml' >> /home/ubuntu/profile",
+            "export KUBECONFIG=/home/ubuntu/.kube/k3s.yaml"
         ]
     }
 
@@ -125,7 +130,8 @@ resource "aws_instance" "worker" {
         inline = [
             "echo 'curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"agent\" K3S_TOKEN=\"${var.k3s_token}\" sh -s - --server ${var.project_domain}:6443' >> /home/ubuntu/setup.sh",
             "chmod +x /home/ubuntu/setup.sh",
-            "exec /home/ubuntu/setup.sh | tee logs.txt"
+            "while ! nc -z ${aws_instance.main.public_ip} 6443; do sleep 0.1; done",
+            "exec /home/ubuntu/setup.sh | tee logs.txt",
         ]
     }
 
