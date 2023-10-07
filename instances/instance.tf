@@ -34,12 +34,13 @@ resource "aws_key_pair" "ssh_key_ci_cd" {
 }
 
 locals {
-    ports_in = [
-        22,
-        80,
-        443,
-        6443,
-        10250
+    rules_in = [
+        { "port": 22, "protocol": "tcp" },
+        { "port": 80, "protocol": "tcp" },
+        { "port": 443, "protocol": "tcp" },
+        { "port": 6080, "protocol": "tcp" },
+        { "port": 6443, "protocol": "tcp" },
+        { "port": 10250, "protocol": "tcp" },
     ]
 }
 
@@ -48,11 +49,11 @@ resource "aws_security_group" "project_pool" {
     description = "Security group for project pool"
 
     dynamic "ingress" {
-        for_each = toset(local.ports_in)
+        for_each = toset(local.rules_in)
         content {
-            from_port = ingress.value
-            to_port = ingress.value
-            protocol = "tcp"
+            from_port = ingress.value["port"]
+            to_port = ingress.value["port"]
+            protocol = ingress.value["protocol"]
             cidr_blocks = ["0.0.0.0/0"]
         }
     }
@@ -69,7 +70,7 @@ resource "aws_security_group" "project_pool" {
 
 resource "aws_instance" "main" {
     ami = "ami-0af6e9042ea5a4e3e"
-    instance_type = "t3a.medium"
+    instance_type = "t3a.small"
     vpc_security_group_ids = [ aws_security_group.project_pool.id ]
 
     key_name = aws_key_pair.ssh_key_main.key_name
@@ -89,14 +90,13 @@ resource "aws_instance" "main" {
         }
         
         inline = [
-            "echo 'curl -sfL https://get.k3s.io | K3S_TOKEN=\"${var.k3s_token}\" sh -' >> /home/ubuntu/setup.sh",
+            "echo 'curl -sfL https://get.k3s.io | K3S_TOKEN=\"${var.k3s_token}\" K3S_KUBECONFIG_MODE=644 INSTALL_K3S_EXEC=\"server --disable=traefik\" sh -' >> /home/ubuntu/setup.sh",
+            "echo 'mkdir /home/ubuntu/.kube' >> /home/ubuntu/setup.sh",
+            "echo 'sudo chmod 644 /etc/rancher/k3s/k3s.yaml' >> /home/ubuntu/setup.sh",
+            "echo 'cp /etc/rancher/k3s/k3s.yaml /home/ubuntu/.kube/k3s.yaml' >> /home/ubuntu/setup.sh",
+            "echo 'export KUBECONFIG=/home/ubuntu/.kube/k3s.yaml' >> /home/ubuntu/.profile",
             "chmod +x /home/ubuntu/setup.sh",
             "exec /home/ubuntu/setup.sh | tee logs.txt",
-            "mkdir /home/ubuntu/.kube",
-            "sudo chmod 644 /etc/rancher/k3s/k3s.yaml",
-            "cp /etc/rancher/k3s/k3s.yaml /home/ubuntu/.kube/k3s.yaml",
-            "echo 'export KUBECONFIG=/home/ubuntu/.kube/k3s.yaml' >> /home/ubuntu/profile",
-            "export KUBECONFIG=/home/ubuntu/.kube/k3s.yaml"
         ]
     }
 
@@ -128,7 +128,7 @@ resource "aws_instance" "worker" {
         }
         
         inline = [
-            "echo 'curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"agent\" K3S_TOKEN=\"${var.k3s_token}\" sh -s - --server ${var.project_domain}:6443' >> /home/ubuntu/setup.sh",
+            "echo 'curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"agent\" K3S_TOKEN=\"${var.k3s_token}\" K3S_URL=\"${var.project_domain}:6443\" sh -s -' >> /home/ubuntu/setup.sh",
             "chmod +x /home/ubuntu/setup.sh",
             "while ! nc -z ${aws_instance.main.public_ip} 6443; do sleep 0.1; done",
             "exec /home/ubuntu/setup.sh | tee logs.txt",

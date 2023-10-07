@@ -56,4 +56,5 @@ module "dns" {
         godaddy = godaddy
     }
     public_ip = module.instances.pool_master_public_ip
+    environment_name = var.environment_name
 }
