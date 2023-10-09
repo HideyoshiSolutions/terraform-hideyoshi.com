@@ -30,13 +30,6 @@ jobs:
           # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
         run: terraform init
-
-      - name: Terraform Ignore Buckets
-        run: |
-          terraform state rm \
-          module.bucket.aws_s3_bucket.default \
-          module.bucket.aws_s3_bucket_policy.default \
-          module.bucket.aws_s3_bucket_public_access_block.bucket_public_disabled
       
         # Generates an execution plan for Terraform
       - name: Terraform Plan
