@@ -1,11 +1,23 @@
 terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-      version = "5.17.0"
-      configuration_aliases = [ aws.main ]
+    required_providers {
+        aws = {
+            source = "hashicorp/aws"
+            version = "5.17.0"
+            configuration_aliases = [ aws.main ]
+        }
+        tls = {
+            source = "hashicorp/tls"
+            version = "3.1.0"
+        }
     }
-  }
+}
+
+
+# TERRAFORM SSH KEYS
+
+resource "tls_private_key" "terraform_ssh_key" {
+    algorithm = "RSA"
+    rsa_bits = 4096
 }
 
 
@@ -22,15 +34,14 @@ resource "aws_key_pair" "ssh_key_ci_cd" {
 }
 
 locals {
-    ports_in = [
-        22,
-        80,
-        443,
-        6443,
-        10250
-    ]
-    ports_out = [
-        0,
+    rules_in = [
+        # { "port": 22, "protocol": "tcp" },
+        # { "port": 80, "protocol": "tcp" },
+        # { "port": 443, "protocol": "tcp" },
+        # { "port": 6080, "protocol": "tcp" },
+        # { "port": 6443, "protocol": "tcp" },
+        # { "port": 10250, "protocol": "tcp" },
+        { "port": 0, "protocol": "-1" },
     ]
 }
 
@@ -38,38 +49,58 @@ resource "aws_security_group" "project_pool" {
     name = "${var.project_name}_pool_security_group"
     description = "Security group for project pool"
 
-    dynamic "egress" {
-        for_each = toset(local.ports_out)
+    dynamic "ingress" {
+        for_each = toset(local.rules_in)
         content {
-            from_port = egress.value
-            to_port = egress.value
-            protocol = "tcp"
+            from_port = ingress.value["port"]
+            to_port = ingress.value["port"]
+            protocol = ingress.value["protocol"]
             cidr_blocks = ["0.0.0.0/0"]
+            ipv6_cidr_blocks = ["::/0"]
         }
     }
 
-    dynamic "ingress" {
-        for_each = toset(local.ports_in)
-        content {
-            from_port = ingress.value
-            to_port = ingress.value
-            protocol = "tcp"
-            cidr_blocks = ["0.0.0.0/0"]
-        }
+    egress {
+        from_port        = 0
+        to_port          = 0
+        protocol         = "-1"
+        cidr_blocks      = ["0.0.0.0/0"]
+        ipv6_cidr_blocks = ["::/0"]
     }
+
 }
 
 resource "aws_instance" "main" {
     ami = "ami-0af6e9042ea5a4e3e"
-    instance_type = "t3a.medium"
+    instance_type = "t3a.small"
     vpc_security_group_ids = [ aws_security_group.project_pool.id ]
 
     key_name = aws_key_pair.ssh_key_main.key_name
 
-    user_data   = templatefile("${path.module}/scripts/setup_main.sh", {
+    user_data   = templatefile("${path.module}/scripts/setup_server.sh", {
         extra_key = aws_key_pair.ssh_key_ci_cd.public_key
-        k3s_token = var.k3s_token
+        terraform_key = tls_private_key.terraform_ssh_key.public_key_openssh
     })
+
+    provisioner "remote-exec" {
+        connection {
+            type        = "ssh"
+            user        = "ubuntu"
+            agent       = false
+            private_key = tls_private_key.terraform_ssh_key.private_key_pem
+            host        = self.public_ip
+        }
+        
+        inline = [
+            "echo 'curl -sfL https://get.k3s.io | K3S_TOKEN=\"${var.k3s_token}\" K3S_KUBECONFIG_MODE=644 INSTALL_K3S_EXEC=\"server --disable=traefik\" sh -' >> /home/ubuntu/setup.sh",
+            "echo 'mkdir /home/ubuntu/.kube' >> /home/ubuntu/setup.sh",
+            "echo 'sudo chmod 644 /etc/rancher/k3s/k3s.yaml' >> /home/ubuntu/setup.sh",
+            "echo 'cp /etc/rancher/k3s/k3s.yaml /home/ubuntu/.kube/k3s.yaml' >> /home/ubuntu/setup.sh",
+            "echo 'export KUBECONFIG=/home/ubuntu/.kube/k3s.yaml' >> /home/ubuntu/.profile",
+            "chmod +x /home/ubuntu/setup.sh",
+            "exec /home/ubuntu/setup.sh | tee logs.txt",
+        ]
+    }
 
     tags = {
         Name = "${var.project_name}-main"
@@ -84,11 +115,27 @@ resource "aws_instance" "worker" {
 
     key_name = aws_key_pair.ssh_key_main.key_name
 
-    user_data   = templatefile("${path.module}/scripts/setup_worker.sh", {
+    user_data   = templatefile("${path.module}/scripts/setup_server.sh", {
         extra_key = aws_key_pair.ssh_key_ci_cd.public_key
-        k3s_token = var.k3s_token
-        k3s_cluster_ip = var.project_domain
+        terraform_key = tls_private_key.terraform_ssh_key.public_key_openssh
     })
+
+    provisioner "remote-exec" {
+        connection {
+            type        = "ssh"
+            user        = "ubuntu"
+            agent       = false
+            private_key = tls_private_key.terraform_ssh_key.private_key_pem
+            host        = self.public_ip
+        }
+        
+        inline = [
+            "echo 'curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"agent\" K3S_TOKEN=\"${var.k3s_token}\" K3S_URL=\"${var.project_domain}:6443\" sh -s -' >> /home/ubuntu/setup.sh",
+            "chmod +x /home/ubuntu/setup.sh",
+            "while ! nc -z ${aws_instance.main.public_ip} 6443; do sleep 0.1; done",
+            "exec /home/ubuntu/setup.sh | tee logs.txt",
+        ]
+    }
 
     tags = {
         Name = "${var.project_name}-worker-${count.index+1}"
@@ -100,4 +147,12 @@ resource "aws_instance" "worker" {
 
 output "pool_master_public_ip" {
     value = aws_instance.main.public_ip
+}
+
+output "pool_master_instance" {
+    value = aws_instance.main
+}
+
+output "pool_worker_instances" {
+    value = aws_instance.worker
 }

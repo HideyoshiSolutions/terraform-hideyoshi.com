@@ -12,6 +12,10 @@ variable "public_ip" {
     type = string
 }
 
+variable "environment_name" {
+    type = string
+}
+
 
 resource "godaddy_domain_record" "default" {
     domain   = "hideyoshi.com.br"
@@ -19,7 +23,7 @@ resource "godaddy_domain_record" "default" {
     overwrite = false
 
     record {
-        name = "staging	"
+        name = var.environment_name == "prod" ? "@" : "staging"
         type = "A"
         data = "${var.public_ip}"
         ttl = 600
@@ -27,7 +31,7 @@ resource "godaddy_domain_record" "default" {
     }
 
     record {
-        name = "api.staging	"
+        name = var.environment_name == "prod" ? "api" : "api.staging"
         type = "A"
         data = "${var.public_ip}"
         ttl = 600
