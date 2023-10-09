@@ -35,12 +35,13 @@ resource "aws_key_pair" "ssh_key_ci_cd" {
 
 locals {
     rules_in = [
-        { "port": 22, "protocol": "tcp" },
-        { "port": 80, "protocol": "tcp" },
-        { "port": 443, "protocol": "tcp" },
-        { "port": 6080, "protocol": "tcp" },
-        { "port": 6443, "protocol": "tcp" },
-        { "port": 10250, "protocol": "tcp" },
+        # { "port": 22, "protocol": "tcp" },
+        # { "port": 80, "protocol": "tcp" },
+        # { "port": 443, "protocol": "tcp" },
+        # { "port": 6080, "protocol": "tcp" },
+        # { "port": 6443, "protocol": "tcp" },
+        # { "port": 10250, "protocol": "tcp" },
+        { "port": 0, "protocol": "-1" },
     ]
 }
 
@@ -55,6 +56,7 @@ resource "aws_security_group" "project_pool" {
             to_port = ingress.value["port"]
             protocol = ingress.value["protocol"]
             cidr_blocks = ["0.0.0.0/0"]
+            ipv6_cidr_blocks = ["::/0"]
         }
     }
 
