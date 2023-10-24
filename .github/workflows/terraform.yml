@@ -43,3 +43,12 @@ jobs:
     - name: Terraform Apply
       if: github.event_name == 'push'
       run: terraform apply -auto-approve -input=false
+
+    - name: Deploy Project via Dispatcher
+      env:
+        DISPATCHER_EVENT: ${{env.TF_WORKSPACE == 'prod' && 'deploy-prod' || 'deploy-staging'}}
+      run: |
+        curl -X POST https://api.github.com/repos/HideyoshiNakazone/infra-hideyoshi.com/dispatches \
+             -H 'Accept: application/vnd.github.everest-preview+json' \
+             -u ${{ secrets.ACTIONS_KEY }} \
+             --data '{"event_type": "${{env.DISPATCHER_EVENT}}" }'
