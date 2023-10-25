@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Setting up swap space
-sudo fallocate -l 2G /swapfile
-sudo mkswap /swapfile
-sudo chmod 600 /swapfile
-sudo swapon /swapfile
+fallocate -l 2G /swapfile
+mkswap /swapfile
+chmod 600 /swapfile
+swapon /swapfile
 
 
 # Configuring ssh keys
