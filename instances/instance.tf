@@ -92,6 +92,10 @@ resource "aws_instance" "main" {
         }
         
         inline = [
+            "sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024",
+            "sudo /sbin/mkswap /var/swap.1",
+            "sudo chmod 600 /var/swap.1",
+            "sudo /sbin/swapon /var/swap.1",
             "echo 'curl -sfL https://get.k3s.io | K3S_TOKEN=\"${var.k3s_token}\" K3S_KUBECONFIG_MODE=644 INSTALL_K3S_EXEC=\"server --disable=traefik\" sh -' >> /home/ubuntu/setup.sh",
             "echo 'mkdir /home/ubuntu/.kube' >> /home/ubuntu/setup.sh",
             "echo 'sudo chmod 644 /etc/rancher/k3s/k3s.yaml' >> /home/ubuntu/setup.sh",
@@ -130,6 +134,10 @@ resource "aws_instance" "worker" {
         }
         
         inline = [
+            "sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024",
+            "sudo /sbin/mkswap /var/swap.1",
+            "sudo chmod 600 /var/swap.1",
+            "sudo /sbin/swapon /var/swap.1",
             "echo 'curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"agent\" K3S_TOKEN=\"${var.k3s_token}\" K3S_URL=\"${var.project_domain}:6443\" sh -s -' >> /home/ubuntu/setup.sh",
             "chmod +x /home/ubuntu/setup.sh",
             "while ! nc -z ${aws_instance.main.public_ip} 6443; do sleep 0.1; done",
