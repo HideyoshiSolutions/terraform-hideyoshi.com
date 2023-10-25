@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+# Configuring ssh keys
 echo -e "${extra_key}" >> /home/ubuntu/.ssh/authorized_keys;
 echo -e "${terraform_key}" >> /home/ubuntu/.ssh/authorized_keys;
 
