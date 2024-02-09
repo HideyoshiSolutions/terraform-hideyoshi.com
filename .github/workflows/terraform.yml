@@ -49,7 +49,7 @@ jobs:
       env:
         DISPATCHER_EVENT: 'deploy-prod'
       run: |
-        curl -X POST https://api.github.com/repos/HideyoshiNakazone/infra-hideyoshi.com/dispatches \
+        curl -X POST https://api.github.com/repos/HideyoshiSolutions/infra-hideyoshi.com/dispatches \
              -H 'Accept: application/vnd.github.everest-preview+json' \
              -u ${{ secrets.ACTIONS_KEY }} \
              --data '{"event_type": "${{env.DISPATCHER_EVENT}}" }'
