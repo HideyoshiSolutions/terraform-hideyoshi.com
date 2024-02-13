@@ -72,7 +72,7 @@ resource "aws_security_group" "project_pool" {
 
 resource "aws_instance" "main" {
   ami                    = "ami-0af6e9042ea5a4e3e"
-  instance_type          = "t2.micro"
+  instance_type          = "t3a.micro"
   vpc_security_group_ids = [aws_security_group.project_pool.id]
 
   key_name = aws_key_pair.ssh_key_main.key_name
@@ -81,6 +81,11 @@ resource "aws_instance" "main" {
     extra_key     = aws_key_pair.ssh_key_ci_cd.public_key
     terraform_key = tls_private_key.terraform_ssh_key.public_key_openssh
   })
+
+  root_block_device {
+    volume_size = 15
+    volume_type = "gp3"
+  }
 
   provisioner "remote-exec" {
     connection {
@@ -97,6 +102,7 @@ resource "aws_instance" "main" {
       "sudo chmod 600 /var/swap.1",
       "sudo /sbin/swapon /var/swap.1",
       "echo 'curl -sfL https://get.k3s.io | K3S_TOKEN=\"${var.k3s_token}\" K3S_KUBECONFIG_MODE=644 INSTALL_K3S_EXEC=\"server --disable=traefik --tls-san=${var.project_domain}\" sh -' >> /home/ubuntu/setup.sh",
+      "echo 'curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash' >> /home/ubuntu/setup.sh",
       "echo 'mkdir /home/ubuntu/.kube' >> /home/ubuntu/setup.sh",
       "echo 'sudo chmod 644 /etc/rancher/k3s/k3s.yaml' >> /home/ubuntu/setup.sh",
       "echo 'cp /etc/rancher/k3s/k3s.yaml /home/ubuntu/.kube/k3s.yaml' >> /home/ubuntu/setup.sh",
@@ -123,6 +129,11 @@ resource "aws_instance" "worker" {
     extra_key     = aws_key_pair.ssh_key_ci_cd.public_key
     terraform_key = tls_private_key.terraform_ssh_key.public_key_openssh
   })
+
+  root_block_device {
+    volume_size = 15
+    volume_type = "gp3"
+  }
 
   provisioner "remote-exec" {
     connection {
