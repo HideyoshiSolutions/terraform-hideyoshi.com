@@ -119,7 +119,7 @@ resource "aws_instance" "main" {
 
 resource "aws_instance" "worker" {
   ami                    = "ami-0af6e9042ea5a4e3e"
-  instance_type          = "t2.micro"
+  instance_type          = "t3a.micro"
   vpc_security_group_ids = [aws_security_group.project_pool.id]
   count                  = var.number_of_workers
 
