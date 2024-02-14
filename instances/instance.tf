@@ -101,14 +101,14 @@ resource "aws_instance" "main" {
       "sudo /sbin/mkswap /var/swap.1",
       "sudo chmod 600 /var/swap.1",
       "sudo /sbin/swapon /var/swap.1",
-      "echo 'curl -sfL https://get.k3s.io | K3S_TOKEN=\"${var.k3s_token}\" K3S_KUBECONFIG_MODE=644 INSTALL_K3S_EXEC=\"server --disable=traefik --tls-san=${var.project_domain}\" sh -' >> /home/ubuntu/setup.sh",
-      "echo 'curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash' >> /home/ubuntu/setup.sh",
-      "echo 'mkdir /home/ubuntu/.kube' >> /home/ubuntu/setup.sh",
-      "echo 'sudo chmod 644 /etc/rancher/k3s/k3s.yaml' >> /home/ubuntu/setup.sh",
-      "echo 'cp /etc/rancher/k3s/k3s.yaml /home/ubuntu/.kube/k3s.yaml' >> /home/ubuntu/setup.sh",
-      "echo 'export KUBECONFIG=/home/ubuntu/.kube/k3s.yaml' >> /home/ubuntu/.profile",
-      "chmod +x /home/ubuntu/setup.sh",
-      "exec /home/ubuntu/setup.sh | tee logs.txt",
+      "echo 'curl -sfL https://get.k3s.io | K3S_TOKEN=\"${var.k3s_token}\" K3S_KUBECONFIG_MODE=644 INSTALL_K3S_EXEC=\"server --disable=traefik --tls-san=${var.project_domain}\" sh -' >> $HOME/setup.sh",
+      "echo 'curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash' >> $HOME/setup.sh",
+      "echo 'mkdir -p $HOME/.kube' >> $HOME/setup.sh",
+      "echo 'sudo chmod 644 /etc/rancher/k3s/k3s.yaml' >> $HOME/setup.sh",
+      "echo 'cp /etc/rancher/k3s/k3s.yaml $HOME/.kube/k3s.yaml' >> $HOME/setup.sh",
+      "echo 'export KUBECONFIG=$HOME/.kube/k3s.yaml' >> $HOME/.profile",
+      "chmod +x $HOME/setup.sh",
+      "exec $HOME/setup.sh | tee logs.txt",
     ]
   }
 
@@ -149,10 +149,10 @@ resource "aws_instance" "worker" {
       "sudo /sbin/mkswap /var/swap.1",
       "sudo chmod 600 /var/swap.1",
       "sudo /sbin/swapon /var/swap.1",
-      "echo 'curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"agent\" K3S_TOKEN=\"${var.k3s_token}\" K3S_URL=\"https://${var.project_domain}:6443\" sh -s -' >> /home/ubuntu/setup.sh",
-      "chmod +x /home/ubuntu/setup.sh",
+      "echo 'curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"agent\" K3S_TOKEN=\"${var.k3s_token}\" K3S_URL=\"https://${var.project_domain}:6443\" sh -s -' >> $HOME/setup.sh",
+      "chmod +x $HOME/setup.sh",
       "while ! nc -z ${aws_instance.main.public_ip} 6443; do sleep 0.1; done",
-      "exec /home/ubuntu/setup.sh | tee logs.txt",
+      "exec $HOME/setup.sh | tee logs.txt",
     ]
   }
 
