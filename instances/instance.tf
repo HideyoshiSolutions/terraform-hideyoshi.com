@@ -106,6 +106,7 @@ resource "aws_instance" "main" {
       "echo 'mkdir -p $HOME/.kube' >> $HOME/setup.sh",
       "echo 'sudo chmod 644 /etc/rancher/k3s/k3s.yaml' >> $HOME/setup.sh",
       "echo 'cp /etc/rancher/k3s/k3s.yaml $HOME/.kube/k3s.yaml' >> $HOME/setup.sh",
+      "echo 'chmod g+r $HOME/.kube/k3s.yaml' >> $HOME/setup.sh",
       "echo 'export KUBECONFIG=$HOME/.kube/k3s.yaml' >> $HOME/.profile",
       "chmod +x $HOME/setup.sh",
       "exec $HOME/setup.sh | tee logs.txt",
@@ -119,7 +120,7 @@ resource "aws_instance" "main" {
 
 resource "aws_instance" "worker" {
   ami                    = "ami-0af6e9042ea5a4e3e"
-  instance_type          = "t3a.micro"
+  instance_type          = "t3a.small"
   vpc_security_group_ids = [aws_security_group.project_pool.id]
   count                  = var.number_of_workers
 
