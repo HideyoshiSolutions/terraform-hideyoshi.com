@@ -72,7 +72,7 @@ resource "aws_security_group" "project_pool" {
 
 resource "aws_instance" "main" {
   ami                    = "ami-0af6e9042ea5a4e3e"
-  instance_type          = "t3a.micro"
+  instance_type          = "t3a.small"
   vpc_security_group_ids = [aws_security_group.project_pool.id]
 
   key_name = aws_key_pair.ssh_key_main.key_name
