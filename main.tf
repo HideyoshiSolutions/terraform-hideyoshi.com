@@ -2,9 +2,9 @@
 
 terraform {
   required_providers {
-    godaddy = {
-      source = "zaneatwork/godaddy"
-      version = "1.9.10"
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 4.0"
     }
     aws = {
       source = "hashicorp/aws"
@@ -19,9 +19,8 @@ provider "aws" {
     secret_key = var.aws_secret
 }
 
-provider "godaddy" {
-    key = var.godaddy_key
-    secret = var.godaddy_secret
+provider "cloudflare" {
+    api_token = var.cloudflare_api_token
 }
 
 
@@ -53,8 +52,9 @@ module "instances" {
 module "dns" {
     source = "./dns"
     providers = {
-        godaddy = godaddy
+        cloudflare = cloudflare
     }
     public_ip = module.instances.pool_master_public_ip
     environment_name = var.environment_name
+    cloudflare_zone_id = var.cloudflare_zone_id
 }

@@ -35,12 +35,12 @@ variable "aws_secret" {
     type = string
 }
 
-variable "godaddy_key" {
+variable "cloudflare_api_token" {
     type = string
 }
 
-variable "godaddy_secret" {
-    type = string 
+variable "cloudflare_zone_id" {
+    type = string
 }
 
 variable "ssh_public_key_main" {
