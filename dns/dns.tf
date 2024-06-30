@@ -1,8 +1,8 @@
 terraform {
   required_providers {
-    godaddy = {
-      source = "zaneatwork/godaddy"
-      version = "1.9.10"
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 4.0"
     }
   }
 }
@@ -16,25 +16,28 @@ variable "environment_name" {
     type = string
 }
 
+variable "cloudflare_zone_id" {
+    type = string
+}
 
-resource "godaddy_domain_record" "default" {
-    domain   = "hideyoshi.com.br"
 
-    overwrite = false
+resource "cloudflare_record" "default" {
+    zone_id = var.cloudflare_zone_id
 
-    record {
-        name = var.environment_name == "prod" ? "@" : "staging"
-        type = "A"
-        data = "${var.public_ip}"
-        ttl = 600
-        priority = 0
-    }
+    name = var.environment_name == "prod" ? "@" : "staging"
+    value = var.public_ip
+    type = "A"
+    ttl = 3600
+    proxied = false
+}
 
-    record {
-        name = var.environment_name == "prod" ? "api" : "api.staging"
-        type = "A"
-        data = "${var.public_ip}"
-        ttl = 600
-        priority = 0
-    }
+
+resource "cloudflare_record" "api" {
+    zone_id = var.cloudflare_zone_id
+
+    name = var.environment_name == "prod" ? "api" : "api.staging"
+    value = var.public_ip
+    type = "A"
+    ttl = 3600
+    proxied = false
 }
