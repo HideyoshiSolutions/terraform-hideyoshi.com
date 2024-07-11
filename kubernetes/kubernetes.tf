@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     yoshik3s = {
-      source  = "HideyoshiNakazone/yoshik3s"
-      version = "0.1.2"
+      source = "HideyoshiNakazone/yoshik3s"
+      version = "0.1.3"
     }
   }
 }
