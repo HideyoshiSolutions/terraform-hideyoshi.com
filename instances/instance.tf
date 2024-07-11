@@ -101,15 +101,6 @@ resource "aws_instance" "main" {
       "sudo /sbin/mkswap /var/swap.1",
       "sudo chmod 600 /var/swap.1",
       "sudo /sbin/swapon /var/swap.1",
-      "echo 'curl -sfL https://get.k3s.io | sh -s - server --disable traefik --tls-san ${var.project_domain} --token \"${var.k3s_token}\" --node-label node_type=master' >> $HOME/setup.sh",
-      "echo 'curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash' >> $HOME/setup.sh",
-      "echo 'mkdir -p $HOME/.kube' >> $HOME/setup.sh",
-      "echo 'sudo chmod 644 /etc/rancher/k3s/k3s.yaml' >> $HOME/setup.sh",
-      "echo 'cp /etc/rancher/k3s/k3s.yaml $HOME/.kube/k3s.yaml' >> $HOME/setup.sh",
-      "echo 'chmod g+r $HOME/.kube/k3s.yaml' >> $HOME/setup.sh",
-      "echo 'export KUBECONFIG=$HOME/.kube/k3s.yaml' >> $HOME/.profile",
-      "chmod +x $HOME/setup.sh",
-      "exec $HOME/setup.sh | tee logs.txt",
     ]
   }
 
@@ -150,10 +141,6 @@ resource "aws_instance" "worker" {
       "sudo /sbin/mkswap /var/swap.1",
       "sudo chmod 600 /var/swap.1",
       "sudo /sbin/swapon /var/swap.1",
-      "echo 'curl -sfL https://get.k3s.io | sh -s - agent --node-label node_type=worker --token ${var.k3s_token} --server https://${var.project_domain}:6443' >> $HOME/setup.sh",
-      "chmod +x $HOME/setup.sh",
-      "while ! nc -z ${aws_instance.main.public_ip} 6443; do sleep 0.1; done",
-      "exec $HOME/setup.sh | tee logs.txt",
     ]
   }
 
@@ -170,9 +157,23 @@ output "pool_master_public_ip" {
 }
 
 output "pool_master_instance" {
-  value = aws_instance.main
+  value = [
+    {
+      host: aws_instance.main.public_ip
+      port: 22
+      user: "ubuntu"
+      private_key: tls_private_key.terraform_ssh_key.private_key_pem
+    }
+  ]
 }
 
 output "pool_worker_instances" {
-  value = aws_instance.worker
+  value = [
+    for instance in aws_instance.worker : {
+      host: instance.public_ip
+      port: 22
+      user: "ubuntu"
+      private_key: tls_private_key.terraform_ssh_key.private_key_pem
+    }
+  ]
 }
