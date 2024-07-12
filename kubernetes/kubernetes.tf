@@ -18,10 +18,7 @@ resource "yoshik3s_cluster" "main_cluster" {
 
 
 resource "yoshik3s_master_node" "master_node" {
-  cluster = {
-    token       = yoshik3s_cluster.main_cluster.token
-    k3s_version = yoshik3s_cluster.main_cluster.k3s_version
-  }
+  cluster = yoshik3s_cluster.main_cluster
   
   count = length(var.cluster_main_node)
 
@@ -43,10 +40,7 @@ resource "yoshik3s_master_node" "master_node" {
 resource "yoshik3s_worker_node" "worker_node" {
   master_server_address = var.master_server_address
 
-  cluster = {
-    token       = yoshik3s_cluster.main_cluster.token
-    k3s_version = yoshik3s_cluster.main_cluster.k3s_version
-  }
+  cluster = yoshik3s_cluster.main_cluster
 
   count = length(var.cluster_worker_node)
 
