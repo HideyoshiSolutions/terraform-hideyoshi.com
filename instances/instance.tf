@@ -71,8 +71,8 @@ resource "aws_security_group" "project_pool" {
 }
 
 resource "aws_instance" "main" {
-  ami                    = "ami-0af6e9042ea5a4e3e"
-  instance_type          = "t3a.small"
+  ami                    = "ami-06a17a87e19be286a"
+  instance_type          = "t4g.micro"
   vpc_security_group_ids = [aws_security_group.project_pool.id]
 
   key_name = aws_key_pair.ssh_key_main.key_name
@@ -110,10 +110,19 @@ resource "aws_instance" "main" {
 }
 
 resource "aws_instance" "worker" {
-  ami                    = "ami-0af6e9042ea5a4e3e"
-  instance_type          = "t3a.small"
+  ami                    = "ami-06a17a87e19be286a"
+  instance_type          = "t4g.micro"
   vpc_security_group_ids = [aws_security_group.project_pool.id]
   count                  = var.number_of_workers
+  
+  instance_market_options {
+    market_type = "spot"
+    spot_options {
+      max_price = 0.0014
+      instance_interruption_behavior = "stop"
+      spot_instance_type = "persistent"
+    }
+  }
 
   key_name = aws_key_pair.ssh_key_main.key_name
 
