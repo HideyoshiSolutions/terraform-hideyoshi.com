@@ -71,8 +71,8 @@ resource "aws_security_group" "project_pool" {
 }
 
 resource "aws_instance" "main" {
-  ami                    = "ami-06a17a87e19be286a"
-  instance_type          = "t4g.micro"
+  ami                    = var.aws_ami
+  instance_type          = var.aws_instance_type
   vpc_security_group_ids = [aws_security_group.project_pool.id]
 
   key_name = aws_key_pair.ssh_key_main.key_name
@@ -110,8 +110,8 @@ resource "aws_instance" "main" {
 }
 
 resource "aws_instance" "worker" {
-  ami                    = "ami-06a17a87e19be286a"
-  instance_type          = "t4g.micro"
+  ami                    = var.aws_ami
+  instance_type          = var.aws_instance_type
   vpc_security_group_ids = [aws_security_group.project_pool.id]
   count                  = var.number_of_workers
   
