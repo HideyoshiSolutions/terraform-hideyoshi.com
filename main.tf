@@ -55,6 +55,8 @@ module "instances" {
   aws_region           = var.aws_region
   ssh_public_key_main  = var.ssh_public_key_main
   ssh_public_key_ci_cd = var.ssh_public_key_ci_cd
+  aws_instance_type    = var.aws_instance_type
+  aws_ami              = var.aws_ami
 }
 
 module "dns" {

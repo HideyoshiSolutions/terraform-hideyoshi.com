@@ -35,6 +35,16 @@ variable "aws_secret" {
     type = string
 }
 
+variable "aws_instance_type" {
+    type = string
+    default = "t4g.micro"
+}
+
+variable "aws_ami" {
+    type = string
+    default = "ami-06a17a87e19be286a"
+}
+
 variable "cloudflare_api_token" {
     type = string
 }

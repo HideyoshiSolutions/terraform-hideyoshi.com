@@ -23,6 +23,16 @@ variable "aws_region" {
     default = "sa-east-1"
 }
 
+variable "aws_instance_type" {
+    type = string
+    default = "t4g.micro"
+}
+
+variable "aws_ami" {
+    type = string
+    default = "ami-06a17a87e19be286a"
+}
+
 variable "ssh_public_key_main" {
     type = string
 }
