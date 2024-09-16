@@ -12,7 +12,7 @@ terraform {
     }
     yoshik3s = {
       source = "HideyoshiNakazone/yoshik3s"
-      version = "1.0.0"
+      version = "1.0.2"
     }
   }
 }
