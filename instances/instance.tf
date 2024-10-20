@@ -118,7 +118,7 @@ resource "aws_instance" "worker" {
   instance_market_options {
     market_type = "spot"
     spot_options {
-      max_price = 0.0017
+      max_price = 0.0020
       instance_interruption_behavior = "stop"
       spot_instance_type = "persistent"
     }
