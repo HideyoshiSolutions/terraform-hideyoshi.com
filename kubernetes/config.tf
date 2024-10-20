@@ -15,12 +15,12 @@ variable "master_server_address" {
 }
 
 variable "cluster_main_node" {
-    type = list(object({
+    type = object({
         host        = string
         port        = string
         user        = string
         private_key = string
-    }))
+    })
     description = "map of objects - main cluster nodes - [host, port]"
 }
 
