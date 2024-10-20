@@ -29,7 +29,6 @@ resource "yoshik3s_master_node" "master_node" {
   }
 
   node_options = [
-    "--write-kubeconfig-mode 644",
     "--disable traefik",
     "--node-label node_type=master",
   ]
