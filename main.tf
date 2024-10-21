@@ -12,7 +12,7 @@ terraform {
     }
     yoshik3s = {
       source = "HideyoshiNakazone/yoshik3s"
-      version = "1.1.0"
+      version = "1.1.2"
     }
     github = {
       source = "integrations/github"
@@ -99,4 +99,10 @@ module "github" {
   github_owner = var.github_owner
   github_repository = var.github_repository
   cluster_kubeconfig = module.kubernetes.cluster_kubeconfig
+}
+
+
+output "cluster_kubeconfig" {
+  value = module.kubernetes.cluster_kubeconfig
+  sensitive = true  
 }
