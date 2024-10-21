@@ -12,7 +12,11 @@ terraform {
     }
     yoshik3s = {
       source = "HideyoshiNakazone/yoshik3s"
-      version = "1.0.2"
+      version = "1.1.2"
+    }
+    github = {
+      source = "integrations/github"
+      version = "6.3.1"
     }
   }
 }
@@ -29,6 +33,11 @@ provider "cloudflare" {
 
 provider "yoshik3s" {
   # No configuration needed
+}
+
+provider "github" {
+  owner = var.github_owner
+  token = var.github_token
 }
 
 
@@ -79,4 +88,21 @@ module "kubernetes" {
   master_server_address = module.instances.pool_master_public_ip
   cluster_main_node = module.instances.pool_master_instance
   cluster_worker_node = module.instances.pool_worker_instances
+}
+
+module "github" {
+  source = "./github"
+  providers = {
+    github = github
+  }
+  environment_name = var.environment_name
+  github_owner = var.github_owner
+  github_repository = var.github_repository
+  cluster_kubeconfig = module.kubernetes.cluster_kubeconfig
+}
+
+
+output "cluster_kubeconfig" {
+  value = module.kubernetes.cluster_kubeconfig
+  sensitive = true  
 }
