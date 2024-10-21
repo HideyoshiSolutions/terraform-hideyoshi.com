@@ -118,7 +118,7 @@ resource "aws_instance" "worker" {
   instance_market_options {
     market_type = "spot"
     spot_options {
-      max_price = 0.0014
+      max_price = 0.0020
       instance_interruption_behavior = "stop"
       spot_instance_type = "persistent"
     }
@@ -166,14 +166,12 @@ output "pool_master_public_ip" {
 }
 
 output "pool_master_instance" {
-  value = [
-    {
-      host: aws_instance.main.public_ip
-      port: 22
-      user: "ubuntu"
-      private_key: tls_private_key.terraform_ssh_key.private_key_pem
-    }
-  ]
+  value = {
+    host: aws_instance.main.public_ip
+    port: 22
+    user: "ubuntu"
+    private_key: tls_private_key.terraform_ssh_key.private_key_pem
+  }
 }
 
 output "pool_worker_instances" {

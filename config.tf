@@ -15,6 +15,7 @@ variable "project_domain" {
 
 variable "k3s_token" {
     type = string
+    sensitive = true  
 }
 
 variable "number_of_workers" {
@@ -25,14 +26,17 @@ variable "number_of_workers" {
 variable "aws_region" {
     type = string
     default = "sa-east-1"
+    sensitive = true  
 }
 
 variable "aws_access" {
     type = string
+    sensitive = true  
 }
 
 variable "aws_secret" {
     type = string
+    sensitive = true  
 }
 
 variable "aws_instance_type" {
@@ -47,16 +51,35 @@ variable "aws_ami" {
 
 variable "cloudflare_api_token" {
     type = string
+    sensitive = true  
 }
 
 variable "cloudflare_zone_id" {
     type = string
+    sensitive = true  
 }
 
 variable "ssh_public_key_main" {
     type = string
+    sensitive = true  
 }
 
 variable "ssh_public_key_ci_cd" {
     type = string
+    sensitive = true  
+}
+
+variable "github_owner" {
+    type = string
+    default = "HideyoshiSolutions"
+}
+
+variable "github_token" {
+    type = string
+    sensitive = true  
+}
+
+variable "github_repository" {
+    type = string
+    default = "infra-hideyoshi.com"  
 }
