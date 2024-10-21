@@ -19,5 +19,5 @@ resource "github_actions_environment_secret" "cluster_kubeconfig" {
   repository = data.github_repository.infra_hideyoshi_com.name
   environment = var.environment_name
   secret_name = "KUBECONFIG"
-  plaintext_value = var.cluster_kubeconfig
+  plaintext_value = chomp(var.cluster_kubeconfig)
 }
