@@ -97,6 +97,7 @@ resource "aws_instance" "main" {
     }
 
     inline = [
+      "sudo sed -i '1s/^/nameserver 1.1.1.1\\n/' /etc/resolv.conf",
       "sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024",
       "sudo /sbin/mkswap /var/swap.1",
       "sudo chmod 600 /var/swap.1",
@@ -118,7 +119,7 @@ resource "aws_instance" "worker" {
   instance_market_options {
     market_type = "spot"
     spot_options {
-      max_price = 0.0020
+      max_price = var.aws_spot_price
       instance_interruption_behavior = "stop"
       spot_instance_type = "persistent"
     }
@@ -146,6 +147,7 @@ resource "aws_instance" "worker" {
     }
 
     inline = [
+      "sudo sed -i '1s/^/nameserver 1.1.1.1\\n/' /etc/resolv.conf",
       "sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024",
       "sudo /sbin/mkswap /var/swap.1",
       "sudo chmod 600 /var/swap.1",

@@ -33,6 +33,11 @@ variable "aws_ami" {
     default = "ami-06a17a87e19be286a"
 }
 
+variable "aws_spot_price" {
+    type = number
+    default = 0.0028
+}
+
 variable "ssh_public_key_main" {
     type = string
 }

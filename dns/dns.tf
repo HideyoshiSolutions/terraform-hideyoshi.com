@@ -25,7 +25,7 @@ resource "cloudflare_record" "default" {
     zone_id = var.cloudflare_zone_id
 
     name = var.environment_name == "prod" ? "@" : "staging"
-    value = var.public_ip
+    content = var.public_ip
     type = "A"
     ttl = 3600
     proxied = false
@@ -36,7 +36,7 @@ resource "cloudflare_record" "api" {
     zone_id = var.cloudflare_zone_id
 
     name = var.environment_name == "prod" ? "api" : "api.staging"
-    value = var.public_ip
+    content = var.public_ip
     type = "A"
     ttl = 3600
     proxied = false

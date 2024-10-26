@@ -66,6 +66,7 @@ module "instances" {
   ssh_public_key_ci_cd = var.ssh_public_key_ci_cd
   aws_instance_type    = var.aws_instance_type
   aws_ami              = var.aws_ami
+  aws_spot_price       = var.aws_spot_price 
 }
 
 module "dns" {
