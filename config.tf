@@ -51,7 +51,7 @@ variable "aws_ami" {
 
 variable "aws_spot_price" {
     type = number
-    default = 0.0028
+    default = 0
 }
 
 variable "cloudflare_api_token" {

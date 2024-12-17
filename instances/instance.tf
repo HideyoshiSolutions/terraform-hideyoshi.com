@@ -115,13 +115,16 @@ resource "aws_instance" "worker" {
   instance_type          = var.aws_instance_type
   vpc_security_group_ids = [aws_security_group.project_pool.id]
   count                  = var.number_of_workers
-  
-  instance_market_options {
-    market_type = "spot"
-    spot_options {
-      max_price = var.aws_spot_price
-      instance_interruption_behavior = "stop"
-      spot_instance_type = "persistent"
+
+  dynamic "instance_market_options" {
+    for_each = var.aws_spot_price != 0 ? [var.aws_spot_price] : []
+    content {
+      market_type = "spot"
+      spot_options {
+        max_price = instance_market_options.value
+        instance_interruption_behavior = "stop"
+        spot_instance_type = "persistent"
+      }
     }
   }
 
