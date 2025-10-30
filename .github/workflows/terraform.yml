@@ -2,7 +2,7 @@ name: 'Terraform'
 
 on:
   push:
-    branches: [ "staging", "main" ]
+    branches: [ "main" ]
 
 permissions:
   contents: read
@@ -12,7 +12,7 @@ jobs:
     name: 'Terraform'
     runs-on: ubuntu-latest
     env:
-      TF_WORKSPACE: ${{github.ref == 'refs/heads/main' && 'prod' || 'staging'}}
+      TF_WORKSPACE: 'prod'
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
@@ -43,13 +43,3 @@ jobs:
     - name: Terraform Apply
       if: github.event_name == 'push'
       run: terraform apply -auto-approve -input=false
-
-    - name: Deploy Project via Dispatcher
-      if: env.TF_WORKSPACE == 'prod'
-      env:
-        DISPATCHER_EVENT: 'deploy-prod'
-      run: |
-        curl -X POST https://api.github.com/repos/HideyoshiSolutions/infra-hideyoshi.com/dispatches \
-             -H 'Accept: application/vnd.github.everest-preview+json' \
-             -u ${{ secrets.ACTIONS_KEY }} \
-             --data '{"event_type": "${{env.DISPATCHER_EVENT}}" }'
