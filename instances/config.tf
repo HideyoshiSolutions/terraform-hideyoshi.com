@@ -2,7 +2,6 @@
 
 variable "project_name" {
     type = string
-    default = "hideyoshi-portifolio"
 }
 
 variable "project_domain" {
@@ -20,17 +19,18 @@ variable "number_of_workers" {
 
 variable "aws_region" {
     type = string
-    default = "sa-east-1"
 }
 
-variable "aws_instance_type" {
+variable "aws_main_instance_type" {
     type = string
-    default = "t4g.micro"
+}
+
+variable "aws_worker_instance_type" {
+    type = string
 }
 
 variable "aws_ami" {
     type = string
-    default = "ami-06a17a87e19be286a"
 }
 
 variable "aws_spot_price" {

@@ -57,16 +57,17 @@ module "instances" {
   providers = {
     aws.main = aws
   }
-  project_domain       = var.project_domain
-  project_name         = var.project_name
-  k3s_token            = var.k3s_token
-  number_of_workers    = var.number_of_workers
-  aws_region           = var.aws_region
-  ssh_public_key_main  = var.ssh_public_key_main
-  ssh_public_key_ci_cd = var.ssh_public_key_ci_cd
-  aws_instance_type    = var.aws_instance_type
-  aws_ami              = var.aws_ami
-  aws_spot_price       = var.aws_spot_price 
+  project_domain            = var.project_domain
+  project_name              = var.project_name
+  k3s_token                 = var.k3s_token
+  number_of_workers         = var.number_of_workers
+  aws_region                = var.aws_region
+  ssh_public_key_main       = var.ssh_public_key_main
+  ssh_public_key_ci_cd      = var.ssh_public_key_ci_cd
+  aws_main_instance_type    = var.aws_main_instance_type
+  aws_worker_instance_type  = var.aws_worker_instance_type
+  aws_ami                   = var.aws_ami
+  aws_spot_price            = var.aws_spot_price
 }
 
 module "dns" {
@@ -98,7 +99,7 @@ module "github" {
   }
   environment_name = var.environment_name
   github_owner = var.github_owner
-  github_repository = var.github_repository
+  github_repositories = var.github_repositories
   cluster_kubeconfig = module.kubernetes.cluster_kubeconfig
 }
 
