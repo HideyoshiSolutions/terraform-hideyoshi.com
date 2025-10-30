@@ -4,12 +4,10 @@ variable "environment_name" {
 
 variable "github_owner" {
     type = string
-    default = "HideyoshiSolutions"
 }
 
-variable "github_repository" {
-    type = string
-    default = "infra-hideyoshi.com"  
+variable "github_repositories" {
+    type = list(string)
 }
 
 

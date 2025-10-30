@@ -39,7 +39,12 @@ variable "aws_secret" {
     sensitive = true  
 }
 
-variable "aws_instance_type" {
+variable "aws_main_instance_type" {
+    type = string
+    default = "t4g.small"
+}
+
+variable "aws_worker_instance_type" {
     type = string
     default = "t4g.micro"
 }
@@ -84,7 +89,11 @@ variable "github_token" {
     sensitive = true  
 }
 
-variable "github_repository" {
-    type = string
-    default = "infra-hideyoshi.com"  
+variable "github_repositories" {
+    type = list(string)
+    default = [
+        "frontend-hideyoshi.com",
+        "backend-hideyoshi.com",
+        "storage-hideyoshi.com",
+    ]  
 }

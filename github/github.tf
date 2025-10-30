@@ -7,17 +7,15 @@ terraform {
   }
 }
 
-data "github_user" "current" {
-  username = ""
+
+data "github_repository" "repos" {
+  for_each = toset(var.github_repositories)
+  full_name = "${var.github_owner}/${each.value}"
 }
 
-data "github_repository" "infra_hideyoshi_com" {
-  full_name = "${var.github_owner}/${var.github_repository}"
-}
-
-resource "github_actions_environment_secret" "cluster_kubeconfig" {
-  repository = data.github_repository.infra_hideyoshi_com.name
-  environment = var.environment_name
-  secret_name = "KUBECONFIG"
+resource "github_actions_organization_secret" "cluster_kubeconfig" {
+  visibility = "selected"
+  selected_repository_ids = [for repo in data.github_repository.repos : repo.repo_id]
+  secret_name = "PORTFOLIO_KUBECONFIG"
   plaintext_value = chomp(var.cluster_kubeconfig)
 }
