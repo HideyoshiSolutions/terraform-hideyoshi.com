@@ -38,3 +38,11 @@ jobs:
     - name: Terraform Apply
       if: github.event_name == 'push'
       run: terraform apply -auto-approve -input=false
+
+    - name: Trigger Cluster Deployment
+      if: github.event_name == 'push'
+      uses: peter-evans/repository-dispatch@v2
+      with:
+        token: ${{ secrets.ACTIONS_KEY }}
+        repository: HideyoshiSolutions/infra-hideyoshi.com
+        event-type: deploy
