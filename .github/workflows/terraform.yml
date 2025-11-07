@@ -4,9 +4,6 @@ on:
   push:
     branches: [ "main" ]
 
-permissions:
-  contents: read
-
 jobs:
   terraform:
     name: 'Terraform'
@@ -14,10 +11,8 @@ jobs:
     env:
       TF_WORKSPACE: 'prod'
 
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
+    permissions:
+      contents: read
 
     steps:
     # Checkout the repository to the GitHub Actions runner
