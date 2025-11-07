@@ -98,3 +98,13 @@ variable "github_repositories" {
         "infra-hideyoshi.com",
     ]  
 }
+
+variable "gpg_private_key_encryption" {
+    type = string
+    sensitive = true    
+}
+
+variable "gpg_public_key_encryption" {
+    type = string
+    sensitive = true    
+}
