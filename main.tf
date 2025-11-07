@@ -101,10 +101,16 @@ module "github" {
   github_owner = var.github_owner
   github_repositories = var.github_repositories
   cluster_kubeconfig = module.kubernetes.cluster_kubeconfig
+  gpg_public_key_encryption = var.gpg_public_key_encryption
 }
 
 
 output "cluster_kubeconfig" {
   value = module.kubernetes.cluster_kubeconfig
+  sensitive = true  
+}
+
+output "gpg_private_key_encryption" {
+  value = var.gpg_private_key_encryption
   sensitive = true  
 }

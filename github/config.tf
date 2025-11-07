@@ -15,3 +15,8 @@ variable "cluster_kubeconfig" {
     type = string
     sensitive = true  
 }
+
+variable "gpg_public_key_encryption" {
+    type = string
+    sensitive = true  
+}
