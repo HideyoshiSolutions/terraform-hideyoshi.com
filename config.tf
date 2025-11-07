@@ -95,5 +95,6 @@ variable "github_repositories" {
         "frontend-hideyoshi.com",
         "backend-hideyoshi.com",
         "storage-hideyoshi.com",
+        "infra-hideyoshi.com",
     ]  
 }
