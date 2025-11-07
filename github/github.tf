@@ -23,6 +23,6 @@ resource "github_actions_organization_secret" "cluster_kubeconfig" {
 resource "github_actions_organization_secret" "gpg_public_key" {
   visibility = "selected"
   selected_repository_ids = [for repo in data.github_repository.repos : repo.repo_id]
-  secret_name = "PORTFOLIO_GPG_PUBLIC_KEY"
-  plaintext_value = chomp(var.gpg_public_key_encryption)
+  secret_name = "PORTFOLIO_GPG_PRIVATE_KEY"
+  plaintext_value = chomp(var.gpg_private_key_encryption)
 }
