@@ -2,7 +2,6 @@ name: 'Terraform'
 
 on:
   push:
-    branches: [ "main" ]
 
 jobs:
   terraform:
@@ -21,26 +20,25 @@ jobs:
 
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
+      uses: opentofu/setup-opentofu@v1.0.6
       with:
-        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}        
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init
-      run: terraform init
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Init
+      run: tofu init
 
     # Generates an execution plan for Terraform
-    - name: Terraform Plan
-      run: terraform plan -input=false
+    - name: Plan
+      run: tofu plan -input=false
 
       # On push to "main", build or change infrastructure according to Terraform configuration files
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
-    - name: Terraform Apply
-      if: github.event_name == 'push'
-      run: terraform apply -auto-approve -input=false
+    - name: Apply
+      if: github.ref_name == 'main'
+      run: tofu apply -auto-approve -input=false
 
     - name: Trigger Cluster Deployment
-      if: github.event_name == 'push'
       uses: peter-evans/repository-dispatch@v2
       with:
         token: ${{ secrets.ACTIONS_KEY }}
