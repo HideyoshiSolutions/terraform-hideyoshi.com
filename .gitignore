@@ -35,3 +35,7 @@ override.tf.json
 .terraformrc
 terraform.rc
 .secrets
+
+
+.idea/
+.vscode/
